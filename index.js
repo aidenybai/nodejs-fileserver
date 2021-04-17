@@ -4,6 +4,7 @@ let fs = require('fs');
 let path = require('path');
 let finalhandler = require('finalhandler');
 let serveStatic = require('serve-static');
+const { nanoid } = require('nanoid');
 
 let server = http.createServer(function (req, res) {
 
@@ -13,10 +14,13 @@ let serve = serveStatic("./");
     let form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
       let oldpath = files.filetoupload.path;
-      let newpath = path.join(__dirname, files.filetoupload.name)
+      let name = `${nanoid(5)}.${files.filetoupload.name.split('.').pop()}`;
+      let newpath = path.join(__dirname, name)
       fs.rename(oldpath, newpath, function (err) {
         if (err) throw err;
-        res.write('File uploaded and moved!');
+        res.writeHead(301,
+          {Location: 'https://f.aidenybai.com/'+name}
+        );
         res.end();
       });
     });
